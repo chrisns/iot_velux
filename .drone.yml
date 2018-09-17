@@ -1,0 +1,19 @@
+pipeline:
+
+  docker:
+    image: plugins/docker
+    repo: chrisns/iot_velux
+    tags:
+      - latest
+      - ${DRONE_BUILD_NUMBER}
+    secrets: [ docker_username, docker_password ]
+
+  deploy:
+    image: docker
+    secrets: [ AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_IOT_ENDPOINT_HOST, AWS_REGION, VELUX_ADDRESS, VELUX_PASSWORD ]
+    commands:
+      - docker deploy --compose-file docker-compose.yml iot_velux
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    when:
+      branch: master
