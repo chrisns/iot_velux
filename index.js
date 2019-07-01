@@ -1,41 +1,37 @@
-const AWSMqtt = require("aws-mqtt-client").default
-const velux = require('klf-200-api')
+'use strict'
+const velux = require('velux-klf200-api')
+const Iot = require("@chrisns/iot-shorthand")
+const iot = new Iot()
 
-const { AWS_IOT_ENDPOINT_HOST, VELUX_TOPIC, VELUX_ADDRESS, VELUX_PASSWORD } = process.env
+const { VELUX_ADDRESS, VELUX_PASSWORD } = process.env
 
-const awsMqttClient = new AWSMqtt({
-  endpointAddress: AWS_IOT_ENDPOINT_HOST,
-  logger: console
-})
+process.on('exit', () =>
+  velux.end()
+)
 
-awsMqttClient.on("connect", () => awsMqttClient.subscribe([VELUX_TOPIC],
-  { qos: 1 },
-  (err, granted) => console.log("aws", err, granted)
-))
+velux.on('GW_GET_ALL_NODES_INFORMATION_NTF', data =>
+  iot.discovered({
+    name: `velux_${data.serialNumber}`,
+    type: "velux",
+    attributes: {
+      nodeName: data.nodeName.replace(" ", "_"),
+    }
+  }, payload => {
+    if (payload.set_to)
+      velux.sendCommand({
+        api: velux.API.GW_COMMAND_SEND_REQ,
+        functionalParameterMP: { valueType: 'RELATIVE', value: payload.set_to },
+        commandOriginator: 3,
+        priorityLevelLock: false,
+        indexArrayCount: 1,
+        indexArray: [data.nodeID],
+      }).then(() =>
+        iot.report(`velux_${data.serialNumber}`, {
+          set_to: null
+        }))
+  })
+)
 
-const conn = new velux.connection(VELUX_ADDRESS)
-const scenes = new velux.scenes(conn)
-
-const activate_scene = (sceneIdOrName) =>
-  conn.loginAsync(VELUX_PASSWORD)
-    .then(() => scenes.runAsync(sceneIdOrName))
-    .then(() => conn.logoutAsync())
-    .catch((err) => {
-      conn.logoutAsync()
-      console.error(err)
-    })
-
-const message_parser = (raw_message, message = raw_message.toString()) => {
-  try {
-    return JSON.parse(message).message
-  }
-  catch (e) {
-    return message
-  }
-}
-
-awsMqttClient.on("message", (topic, message) => {
-  let scene = message_parser(message)
-  console.log(`Received instruction to activate scene '${scene}'`)
-  return activate_scene(scene)
-})
+velux.connect(VELUX_ADDRESS, {})
+  .then(() => velux.login(VELUX_PASSWORD))
+  .then(() => velux.sendCommand({ api: velux.API.GW_GET_ALL_NODES_INFORMATION_REQ }))

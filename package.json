@@ -9,7 +9,7 @@
   "author": "Chris Nesbitt-Smith",
   "license": "MIT",
   "dependencies": {
-    "aws-mqtt-client": "0.0.5",
-    "klf-200-api": "^2.0.1"
+    "@chrisns/iot-shorthand": "^1.0.20",
+    "velux-klf200-api": "^0.1.3"
   }
 }
