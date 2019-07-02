@@ -35,3 +35,4 @@ velux.on('GW_GET_ALL_NODES_INFORMATION_NTF', data =>
 velux.connect(VELUX_ADDRESS, {})
   .then(() => velux.login(VELUX_PASSWORD))
   .then(() => velux.sendCommand({ api: velux.API.GW_GET_ALL_NODES_INFORMATION_REQ }))
+  .then(() => setInterval(() => velux.sendCommand({ api: velux.API.GW_GET_VERSION_REQ }), 10000))
