@@ -25,7 +25,12 @@ velux.on('GW_GET_ALL_NODES_INFORMATION_NTF', data =>
         priorityLevelLock: false,
         indexArrayCount: 1,
         indexArray: [data.nodeID],
-      }).then(() =>
+      })
+      .catch(error => {
+        console.error(error)
+        process.exit(1)
+     })
+      .then(() =>
         iot.report(`velux_${data.serialNumber}`, {
           set_to: null
         }))
@@ -33,6 +38,10 @@ velux.on('GW_GET_ALL_NODES_INFORMATION_NTF', data =>
 )
 
 velux.connect(VELUX_ADDRESS, {})
+  .catch(error => {
+    console.error(error)
+    process.exit(1)
+  })
   .then(() => velux.login(VELUX_PASSWORD))
   .then(() => velux.sendCommand({ api: velux.API.GW_GET_ALL_NODES_INFORMATION_REQ }))
   .then(() => setInterval(() => velux.sendCommand({ api: velux.API.GW_GET_VERSION_REQ }), 10000))
