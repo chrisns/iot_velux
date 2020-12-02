@@ -9,7 +9,7 @@
   "author": "Chris Nesbitt-Smith",
   "license": "MIT",
   "dependencies": {
-    "@chrisns/iot-shorthand": "^1.0.103",
+    "@chrisns/iot-shorthand": "^1.0.755",
     "velux-klf200-api": "^0.1.6"
   }
 }
