@@ -8,6 +8,7 @@ RUN npm prune --production
 RUN rm -r package-lock.json package.json
 
 FROM node:alpine
+LABEL org.opencontainers.image.source https://github.com/chrisns/iot_velux
 
 COPY --from=build /app /app
 WORKDIR /app
