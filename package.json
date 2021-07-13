@@ -10,6 +10,6 @@
   "license": "MIT",
   "dependencies": {
     "@chrisns/iot-shorthand": "^1.0.937",
-    "velux-klf200-api": "^0.1.6"
+    "velux-klf200-api": "^0.1.7"
   }
 }
