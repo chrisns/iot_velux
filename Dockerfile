@@ -1,4 +1,4 @@
-FROM node:16.4.2-alpine as build
+FROM node:16.5.0-alpine as build
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -7,7 +7,7 @@ RUN npm audit fix
 RUN npm prune --production
 RUN rm -r package-lock.json package.json
 
-FROM node:16.4.2-alpine
+FROM node:16.5.0-alpine
 LABEL org.opencontainers.image.source https://github.com/chrisns/iot_velux
 
 COPY --from=build /app /app
